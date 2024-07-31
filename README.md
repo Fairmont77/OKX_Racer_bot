@@ -1,8 +1,8 @@
 ![image](https://github.com/user-attachments/assets/2e3bd0c0-ff86-460e-bb17-3309e2f79490)
 
 
-## [Settings](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/bot/config/config.py)
-| Settings                                              | Supported |
+## [Functionality](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/bot/config/config.py)
+| Functionality                                            | Supported |
 |-------------------------------------------------------|:---------:|
 | Unlimited number of accounts                          |     ✅     |
 | Binding a proxy to a session                          |     ✅     |
@@ -11,7 +11,7 @@
 | Random number of clicks per request                   |     ✅     |
 | Support tdata / pyrogram .session / telethon .session |     ✅     |
 
-## [Settings](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/.env-example)
+## [⚙Settings](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/.env-example)
 | Settings                | Description                                                                |
 |-------------------------|----------------------------------------------------------------------------|
 | **API_ID / API_HASH**   | Platform data from which to launch a Telegram session (stock - Android)    |
