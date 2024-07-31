@@ -1,6 +1,7 @@
+![image](https://github.com/user-attachments/assets/2e3bd0c0-ff86-460e-bb17-3309e2f79490)
 
 
-## Settings
+## [Settings](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/bot/config/config.py)
 | Settings                                              | Supported |
 |-------------------------------------------------------|:---------:|
 | Unlimited number of accounts                          |     ✅     |
@@ -17,6 +18,7 @@
 | **SLEEP_TIME**          | Random amount of sleep time                                                |
 | **AUTO_BOOST**          | Applies boost automatically if available (True / False)                    |
 | **AUTO_TASK**           | Automatically performs tasks (True / False)                                |
+| **PREDICTION**          | Predict price (0 - MOON, 1 - DOOM, 2 - random)                             |
 | **BOOSTERS**            | Auto upgrade boosters  (True / False)                                      |
 | **USE_PROXY_FROM_FILE** | Whether to use proxy from the `bot/config/proxies.txt` file (True / False) |
 

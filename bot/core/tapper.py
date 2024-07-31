@@ -206,10 +206,14 @@ class Tapper:
             logger.error(f"{self.session_name} | Unknown error while buying boost | Error: {e}")
 
     async def make_assess(self, http_client: aiohttp.ClientSession):
+        if settings.PREDICTION == 2:
+            prediction = random.randint(0, 1)
+        else:
+            prediction = settings.PREDICTION
         try:
             json_data = {
                 "extUserId": self.user_id,
-                "predict": randint(0, 1),
+                "predict": prediction,
                 "gameId": 1
             }
             response = await http_client.post(f'https://www.okx.com/priapi/v1/affiliate/game/racer/assess?'
