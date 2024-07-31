@@ -1,7 +1,7 @@
 ![image](https://github.com/user-attachments/assets/2e3bd0c0-ff86-460e-bb17-3309e2f79490)
 
 
-## [Settings]
+## [Settings](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/bot/config/config.py)
 | Settings                                              | Supported |
 |-------------------------------------------------------|:---------:|
 | Unlimited number of accounts                          |     ✅     |
