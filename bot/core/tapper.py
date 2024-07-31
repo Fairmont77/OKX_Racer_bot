@@ -47,7 +47,7 @@ class Tapper:
             if not self.tg_client.is_connected:
                 try:
                     await self.tg_client.connect()
-                    if settings.USE_REF:
+                    if settings:
                         peer = await self.tg_client.resolve_peer('OKX_official_bot')
                         await self.tg_client.invoke(
                             functions.messages.StartBot(

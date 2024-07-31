@@ -10,7 +10,6 @@ class Settings(BaseSettings):
     SLEEP_TIME: list[int] = [300, 500]
     AUTO_BOOST: bool = True
     AUTO_TASK: bool = True
-    USE_REF: bool = True
     BOOSTERS: dict = {
         "Reload Fuel Tank": True,
         "Fuel Tank": True,
