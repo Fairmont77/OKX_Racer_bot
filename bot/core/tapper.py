@@ -1,8 +1,7 @@
 import asyncio
 import random
-from time import time
-import time as t
 import sys
+from time import time
 from urllib.parse import unquote, quote
 
 import aiohttp
@@ -22,7 +21,6 @@ from .headers import headers
 
 from random import randint
 
-
 class Tapper:
     def __init__(self, tg_client: Client):
         self.tg_client = tg_client
@@ -30,6 +28,7 @@ class Tapper:
         self.first_name = ''
         self.last_name = ''
         self.user_id = ''
+        self.lock = asyncio.Lock()
 
     async def get_tg_web_data(self, proxy: str | None) -> str:
         if proxy:
@@ -305,7 +304,7 @@ class Tapper:
 
                 if chances == 0 and refresh_time > 0:
                     logger.info(f"{self.session_name} | Refresh chances | Sleep <y>{refresh_time}</y> seconds")
-                    await self.dynamic_sleep(refresh_time)
+                    await asyncio.sleep(refresh_time)
                     chances += 1
 
                 sleep_time = randint(settings.SLEEP_TIME[0], settings.SLEEP_TIME[1])
@@ -328,7 +327,7 @@ class Tapper:
                     await asyncio.sleep(delay=randint(10, 15))
 
                 logger.info(f"{self.session_name} | Sleep <y>{sleep_time}</y> seconds")
-                await self.dynamic_sleep(sleep_time)
+                await asyncio.sleep(sleep_time)
             except InvalidSession as error:
                 raise error
 
@@ -336,18 +335,8 @@ class Tapper:
                 logger.error(f"{self.session_name} | Unknown error: {error}")
                 await asyncio.sleep(delay=randint(60, 120))
 
-    async def dynamic_sleep(self, seconds):
-        for remaining in range(seconds, 0, -1):
-            sys.stdout.write(f"\rSleeping: {remaining} seconds remaining")
-            sys.stdout.flush()
-            await asyncio.sleep(1)
-        sys.stdout.write("\rSleep finished.                     \n")
-
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
         await Tapper(tg_client=tg_client).run(proxy=proxy)
     except InvalidSession:
         logger.error(f"{tg_client.name} | Invalid Session")
-
-
-
