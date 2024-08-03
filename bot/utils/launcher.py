@@ -9,7 +9,7 @@ from better_proxy import Proxy
 
 from bot.config import settings
 from bot.utils import logger
-from bot.core.tapper import run_tapper
+from bot.core.okx import run_tapper
 from bot.core.registrator import register_sessions
 
 start_text = """
@@ -24,7 +24,7 @@ start_text = """
 
 Select an action:
 
-    1. Run clicker
+    1. Start race
     2. Create session
 """
 
