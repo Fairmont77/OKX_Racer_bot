@@ -1,4 +1,5 @@
-![image](https://github.com/user-attachments/assets/2e3bd0c0-ff86-460e-bb17-3309e2f79490)
+![image](https://github.com/user-attachments/assets/21374ba7-ae76-4d06-827f-0d8a33299e3d)
+
 
 
 ## [Functionality](https://github.com/Fairmont77/OKX_Racer_bot/blob/main/bot/config/config.py)
