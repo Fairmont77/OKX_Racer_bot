@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     API_ID: int
     API_HASH: str
 
-    SLEEP_TIME: list[int] = [300, 500]
+    SLEEP_TIME: list[int] = [123, 1234]
     AUTO_BOOST: bool = True
     AUTO_TASK: bool = True
     BOOSTERS: dict = {
