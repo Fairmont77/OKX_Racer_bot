@@ -12,7 +12,6 @@ from bot.utils import logger
 from bot.core.tapper import run_tapper
 from bot.core.registrator import register_sessions
 
-
 start_text = """
 
 ░█████╗░██╗░░██╗██╗░░██╗██████╗░░█████╗░████████╗
@@ -21,8 +20,8 @@ start_text = """
 ██║░░██║██╔═██╗░░██╔██╗░██╔══██╗██║░░██║░░░██║░░░
 ╚█████╔╝██║░╚██╗██╔╝╚██╗██████╦╝╚█████╔╝░░░██║░░░
 ░╚════╝░╚═╝░░╚═╝╚═╝░░╚═╝╚═════╝░░╚════╝░░░░╚═╝░░░                                                                               
-                                                                   
-                                                                   
+
+
 Select an action:
 
     1. Run clicker
@@ -30,6 +29,7 @@ Select an action:
 """
 
 global tg_clients
+
 
 def get_session_names() -> list[str]:
     session_names = glob.glob("sessions/*.session")

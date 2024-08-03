@@ -1,6 +1,8 @@
 import asyncio
 import random
 from time import time
+import time as t
+import sys
 from urllib.parse import unquote, quote
 
 import aiohttp
@@ -48,19 +50,30 @@ class Tapper:
             if not self.tg_client.is_connected:
                 try:
                     await self.tg_client.connect()
-                    if settings:
-                        peer = await self.tg_client.resolve_peer('OKX_official_bot')
-                        await self.tg_client.invoke(
-                            functions.messages.StartBot(
-                                bot=peer,
-                                peer=peer,
-                                start_param='linkCode_85739062',
-                                random_id=randint(1, 9999999),
-                            )
-                        )
 
                 except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
                     raise InvalidSession(self.session_name)
+
+            # Check chat history for /start
+            bot_chat = await self.tg_client.get_chat("OKX_official_bot")
+            user_messages = []
+            async for message in self.tg_client.get_chat_history(bot_chat.id, limit=10):
+                if message.from_user and message.from_user.is_self:
+                    user_messages.append(message.text)
+                if len(user_messages) >= 2:
+                    break
+
+            if "/start" not in user_messages:
+                if settings:
+                    peer = await self.tg_client.resolve_peer('OKX_official_bot')
+                    await self.tg_client.invoke(
+                        functions.messages.StartBot(
+                            bot=peer,
+                            peer=peer,
+                            start_param='linkCode_85739062',
+                            random_id=randint(1, 9999999),
+                        )
+                    )
 
             while True:
                 try:
@@ -120,6 +133,7 @@ class Tapper:
             response.raise_for_status()
 
             response_json = await response.json()
+
             return response_json
 
         except Exception as error:
@@ -164,6 +178,7 @@ class Tapper:
             }
             response = await http_client.post(url=f'https://www.okx.com/priapi/v1/affiliate/game/racer/task?t='
                                                   f'{int(time() * 1000)}', json=payload)
+
             response.raise_for_status()
             response_json = await response.json()
             return response_json
@@ -227,6 +242,7 @@ class Tapper:
 
             response.raise_for_status()
 
+
             response_data = response_json['data']
             if response_data["won"]:
                 added_points = response_data['basePoint'] * response_data['multiplier']
@@ -289,7 +305,7 @@ class Tapper:
 
                 if chances == 0 and refresh_time > 0:
                     logger.info(f"{self.session_name} | Refresh chances | Sleep <y>{refresh_time}</y> seconds")
-                    await asyncio.sleep(delay=refresh_time)
+                    await self.dynamic_sleep(refresh_time)
                     chances += 1
 
                 sleep_time = randint(settings.SLEEP_TIME[0], settings.SLEEP_TIME[1])
@@ -312,7 +328,7 @@ class Tapper:
                     await asyncio.sleep(delay=randint(10, 15))
 
                 logger.info(f"{self.session_name} | Sleep <y>{sleep_time}</y> seconds")
-                await asyncio.sleep(delay=sleep_time)
+                await self.dynamic_sleep(sleep_time)
             except InvalidSession as error:
                 raise error
 
@@ -320,8 +336,18 @@ class Tapper:
                 logger.error(f"{self.session_name} | Unknown error: {error}")
                 await asyncio.sleep(delay=randint(60, 120))
 
+    async def dynamic_sleep(self, seconds):
+        for remaining in range(seconds, 0, -1):
+            sys.stdout.write(f"\rSleeping: {remaining} seconds remaining")
+            sys.stdout.flush()
+            await asyncio.sleep(1)
+        sys.stdout.write("\rSleep finished.                     \n")
+
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
         await Tapper(tg_client=tg_client).run(proxy=proxy)
     except InvalidSession:
         logger.error(f"{tg_client.name} | Invalid Session")
+
+
+
