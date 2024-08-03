@@ -28,6 +28,7 @@ class OKX:
         self.last_name = ''
         self.user_id = ''
         self.lock = asyncio.Lock()
+        self.max_level_boosts = set()
 
     async def get_tg_web_data(self, proxy: str | None) -> str:
         if proxy:
@@ -197,6 +198,9 @@ class OKX:
         cost = boost['pointCost']
         cur_stage = boost['curStage']
         total_stage = boost['totalStage']
+        if cur_stage >= total_stage:
+            self.max_level_boosts.add(boost['id'])
+            return False
         return balance > cost and cur_stage < total_stage
 
     async def buy_boost(self, http_client: aiohttp.ClientSession, boost_id: int, boost_name: str) -> bool:
@@ -311,6 +315,9 @@ class OKX:
                 if settings.AUTO_BOOST:
                     boosts = await self.get_boosts(http_client=http_client)
                     for boost in boosts:
+                        if boost['id'] in self.max_level_boosts:
+                            continue
+
                         boost_name = boost['context']['name']
                         boost_id = boost['id']
                         if (boost_id == 2 or boost_id == 3) and settings.BOOSTERS[boost_name]:
@@ -345,6 +352,22 @@ class OKX:
                                 break
 
                     await asyncio.sleep(delay=randint(1, 3))
+
+                if settings.AUTO_BOOST:
+                    boosts = await self.get_boosts(http_client=http_client)
+                    for boost in boosts:
+                        if boost['id'] in self.max_level_boosts:
+                            continue
+
+                        boost_name = boost['context']['name']
+                        boost_id = boost['id']
+                        if (boost_id == 2 or boost_id == 3) and settings.BOOSTERS[boost_name]:
+                            if self.can_buy_boost(balance, boost):
+                                result = await self.buy_boost(http_client=http_client, boost_id=boost_id,
+                                                            boost_name=boost_name)
+                                if result:
+                                    logger.info(f"{self.session_name} | <lc>{boost_name}</lc> upgraded to <m>{boost['curStage'] + 1}</m> lvl")
+
 
                 logger.info(f"{self.session_name} | Sleep <y>{sleep_time}</y> seconds")
                 await asyncio.sleep(sleep_time)
