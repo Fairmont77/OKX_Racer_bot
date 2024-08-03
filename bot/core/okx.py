@@ -1,6 +1,4 @@
 import asyncio
-import random
-import sys
 from time import time
 from urllib.parse import unquote, quote
 
@@ -21,7 +19,8 @@ from .headers import headers
 
 from random import randint
 
-class Tapper:
+
+class OKX:
     def __init__(self, tg_client: Client):
         self.tg_client = tg_client
         self.session_name = tg_client.name
@@ -53,7 +52,6 @@ class Tapper:
                 except (Unauthorized, UserDeactivated, AuthKeyUnregistered):
                     raise InvalidSession(self.session_name)
 
-            # Check chat history for /start
             bot_chat = await self.tg_client.get_chat("OKX_official_bot")
             user_messages = []
             async for message in self.tg_client.get_chat_history(bot_chat.id, limit=10):
@@ -156,7 +154,7 @@ class Tapper:
 
             tasks = response_json['data']
             for task in tasks:
-                if task['state'] == 0 and task['id'] != 5:
+                if task['state'] == 0 and task['id'] != 5 and task['id'] != 9:
                     logger.info(f"{self.session_name} | Performing task <lc>{task['context']['name']}</lc>...")
                     response_data = await self.perform_task(http_client=http_client, task_id=task['id'])
                     if response_data:
@@ -220,12 +218,32 @@ class Tapper:
         except Exception as e:
             logger.error(f"{self.session_name} | Unknown error while buying boost | Error: {e}")
 
+    async def sleeper(self, ms):
+        await asyncio.sleep(ms / 1000)
+
+    async def get_current_price(self):
+        url = 'https://www.okx.com/api/v5/market/ticker?instId=BTC-USDT'
+        async with aiohttp.ClientSession() as session:
+            try:
+                async with session.get(url=url) as response:
+                    response_data = await response.json()
+                    if response_data['code'] == '0' and 'data' in response_data and len(response_data['data']) > 0:
+                        return float(response_data['data'][0]['last'])
+                    else:
+                        raise Exception('Unknown error while getting current price')
+            except Exception as error:
+                raise Exception(f'The current price is {error}')
+
     async def make_assess(self, http_client: aiohttp.ClientSession):
-        if settings.PREDICTION == 2:
-            prediction = random.randint(0, 1)
-        else:
-            prediction = settings.PREDICTION
         try:
+            price1 = await self.get_current_price()
+            await self.sleeper(4000)
+            price2 = await self.get_current_price()
+            if price1 > price2:
+                prediction = 0
+            else:
+                prediction = 1
+
             json_data = {
                 "extUserId": self.user_id,
                 "predict": prediction,
@@ -240,17 +258,18 @@ class Tapper:
                 return None
 
             response.raise_for_status()
-
-
             response_data = response_json['data']
+
             if response_data["won"]:
                 added_points = response_data['basePoint'] * response_data['multiplier']
-                logger.success(f"{self.session_name} | Successful prediction | Got <y>{added_points}</y> points | "
-                               f"Balance: <e>{response_data['balancePoints']}</e> | "
-                               f"Chances: <m>{response_data['numChance']}</m>")
+                logger.success(
+                    f"{self.session_name} | <e>Win x </e><m>{response_data['multiplier']}</m> | Receive: <y>{added_points}</y> points | "
+                    f"New balance: <lc>{response_data['balancePoints']}</lc> | "
+                    f"Chances: <m>{response_data['numChance']}</m> | "
+                    f"Combo: <m>x{response_data['curCombo']}</m>")
             else:
                 logger.info(
-                    f"{self.session_name} | Wrong prediction | Balance: <e>{response_data['balancePoints']}</e> |"
+                    f"{self.session_name} | <m>Lose</m> | Balance: <lc>{response_data['balancePoints']}</lc> |"
                     f" Chances: <m>{response_data['numChance']}</m>")
 
             return response_data
@@ -320,14 +339,16 @@ class Tapper:
                             if self.can_buy_boost(balance, boost):
                                 if await self.buy_boost(http_client=http_client, boost_id=boost['id'],
                                                         boost_name=boost['context']['name']):
+                                    sleep_time = randint(1, 3)
                                     continue
                             else:
                                 break
 
-                    await asyncio.sleep(delay=randint(10, 15))
+                    await asyncio.sleep(delay=randint(1, 3))
 
                 logger.info(f"{self.session_name} | Sleep <y>{sleep_time}</y> seconds")
                 await asyncio.sleep(sleep_time)
+
             except InvalidSession as error:
                 raise error
 
@@ -335,8 +356,9 @@ class Tapper:
                 logger.error(f"{self.session_name} | Unknown error: {error}")
                 await asyncio.sleep(delay=randint(60, 120))
 
+
 async def run_tapper(tg_client: Client, proxy: str | None):
     try:
-        await Tapper(tg_client=tg_client).run(proxy=proxy)
+        await OKX(tg_client=tg_client).run(proxy=proxy)
     except InvalidSession:
         logger.error(f"{tg_client.name} | Invalid Session")
